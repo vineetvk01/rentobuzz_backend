@@ -67,6 +67,18 @@ router.route('/').get((req,res) => {
 
 // For LoggedIn Users
 
+router.route('/logout').delete((req,res)=>{
+    userSessionUtil.allowIfLoggedIn(req,res)
+    let sessionId = res.locals.sessionId
+    let updateSession = {isActive: false}
+    UserSession.findByIdAndUpdate(sessionId,{$set:updateSession}).then(
+        res.status(200).json({
+            status:"success",
+            message:"Logged Out Successfully..."
+        })
+    )
+})
+
 // For AnyUser
 router.route('/usernameavailable').get((req,res) => {
     let reqUserName = req.query.username

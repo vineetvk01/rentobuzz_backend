@@ -30,8 +30,8 @@ function allowIfLoggedIn(req,res){
         })
     }
 }
-function fetchUserFromSessionToken(sessionID,req,res,next){
-    UserSession.findById(sessionID).then((usersession)=>{
+function fetchUserFromSessionToken(sessionId,req,res,next){
+    UserSession.findById(sessionId).then((usersession)=>{
         let userId = usersession.userId;
         if(!usersession.isActive){
             res.status(401).json({
@@ -39,12 +39,15 @@ function fetchUserFromSessionToken(sessionID,req,res,next){
                 error:"Unauthorized",
                 error: "Authorization: Ticket has been expired..",
             })
+            return
         }
         User.findById(userId).then((user)=>{
             let loggedInUser = user.toJSON()
             delete loggedInUser.password
             delete loggedInUser.__v
             res.locals.user = user
+            res.locals.sessionId=sessionId
+            console.log(res.locals)
             next()
         }).catch((err)=>{
             res.status(400).json({
