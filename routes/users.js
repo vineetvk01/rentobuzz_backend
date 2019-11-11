@@ -3,6 +3,7 @@ let User = require('../models/users.model')
 let UserSession = require('../models/userSession.model')
 
 const signUpValidations = require('../validations/validations')
+const userSessionUtil = require('../validations/userSessionUtil')
 
 const success = 'success'
 const failure = 'failure'
@@ -16,18 +17,14 @@ async function loginUser(users, password,req,res){
     var response = {status: failure};
     if(users.length>0){
         if(users.length==1){
-            console.log("I am reaching here.. 1")
             const user = users[0]
             if(user.validPasswordDB(password)){
-                console.log("I am reaching here.. 2")
                 const userSession = new UserSession({
                     userId : user._id,
                     isActive : true
                 })
-                console.log("I am reaching here.. 2.5")
                 userSession.save()
                 .then(function(userSession){
-                    console.log("I am reaching here.. 3")
                     res.status(200).json({
                         status: success,
                         ticket:userSession._id
@@ -57,11 +54,12 @@ async function loginUser(users, password,req,res){
             message : 'Wrong Email/Username!'
         }
     }
-    console.log("I am reaching here.. 4")
 }
 
 // Only For Admin
 router.route('/').get((req,res) => {
+    userSessionUtil.allowIfAdmin(req,res)
+    
     User.find()
     .then(user => res.json(user))
     .catch(err => res.status(500).json(`Error: ${err}`))
