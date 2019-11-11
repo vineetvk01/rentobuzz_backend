@@ -9,7 +9,7 @@ const UserSessionSchema = new mongoose.Schema({
         type: Boolean,
         default: false,
     },
-    ipaddr:{
+    userAgent:{
         type: String,
         default:''
     },

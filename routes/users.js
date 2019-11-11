@@ -21,7 +21,8 @@ async function loginUser(users, password,req,res){
             if(user.validPasswordDB(password)){
                 const userSession = new UserSession({
                     userId : user._id,
-                    isActive : true
+                    isActive : true,
+                    userAgent: req.get('User-Agent')
                 })
                 userSession.save()
                 .then(function(userSession){
@@ -108,7 +109,6 @@ router.route('/login').post((req,res) =>{
                 message: 'Bad Request'
             }) 
         }else{
-            console.log("Its username")
             User.find({userName: credential}).then(user => loginUser(user, password,req,res))
             .catch(err => res.status(500).json({
                 status: failure,

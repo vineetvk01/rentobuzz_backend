@@ -35,7 +35,7 @@ app.use(cors());
 app.use(express.json())
 
 app.use((req,res,next)=>{
-    const { authorization } = req.headers
+    const { authorization} = req.headers
     if(authorization){
         const session_token = authorization.split(' ')
         if(session_token[0] == auth_preToken){
