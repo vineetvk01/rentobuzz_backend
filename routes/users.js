@@ -84,7 +84,7 @@ router.route('/logout').delete((req,res)=>{
 router.route('/usernameavailable').get((req,res) => {
     let reqUserName = req.query.username
     User.find({userName: reqUserName})
-    .then(user => res.json({
+    .then(user => res.status(200).json({
         status: success,
         isAvailable: isUserNameAvailable(user)
     }))
@@ -101,7 +101,6 @@ router.route('/login').post((req,res) =>{
     
     var error = signUpValidations.validateEmail(credential)
     if(error != ""){
-        console.log("Its no email")
         error = signUpValidations.validateUserName(credential) 
         if(error!= ""){
             res.status(400).json({

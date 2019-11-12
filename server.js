@@ -51,6 +51,13 @@ const usersRouter = require('./routes/users')
 const api_v1 = '/api/v1'
 app.use(api_v1+'/users', usersRouter)
 
+app.use((req,res,next)=>{
+    res.status(404).json({
+        status:"Not Found",
+        message:"This URI is not configured",
+    })
+})
+
 app.listen(port, ()=> {
     console.log(`Server is running on port: ${port}`)
 })

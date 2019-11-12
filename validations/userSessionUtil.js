@@ -18,6 +18,7 @@ function allowIfAdmin(req,res){
             }) 
         }
     }
+    return
 }
 
 function allowIfLoggedIn(req,res){
