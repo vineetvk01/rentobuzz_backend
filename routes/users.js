@@ -27,6 +27,7 @@ async function loginUser(users, password, req, res) {
 				userSession
 					.save()
 					.then(function(userSession) {
+						res.cookie('ticket', userSession._id, { httpOnly: true });
 						res.status(200).json({
 							status: success,
 							ticket: userSession._id
