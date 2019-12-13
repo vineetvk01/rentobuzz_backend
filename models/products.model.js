@@ -50,6 +50,10 @@ const ProductsSchema = new Schema(
     lowestPrice: {
       type: Number,
       required: true
+    },
+    securityDeposite: {
+      type: Number,
+      required: true
     }
   },
   {
