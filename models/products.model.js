@@ -22,6 +22,14 @@ const ProductsSchema = new Schema(
       unique: false,
       trim: true
     },
+    category: {
+      type: String,
+      required: true,
+      enum: ["CAMERA", "BUSINESS", "ADVENTURE"],
+      default: "CAMERA",
+      unique: false,
+      trim: true
+    },
     productImages: {
       type: Array,
       required: false,
@@ -34,6 +42,14 @@ const ProductsSchema = new Schema(
     availableInCity: {
       type: Array,
       required: false
+    },
+    pricePerDay: {
+      type: Array,
+      required: false
+    },
+    lowestPrice: {
+      type: Number,
+      required: true
     }
   },
   {
