@@ -1,0 +1,36 @@
+{
+        "category": "camera",
+        "product_images": [],
+        "user_comments": [],
+        "available_in_city": [
+            {"Delhi": 2},
+            {"Bangalore":0},
+            {"Mumbai":1}
+        ],
+        "price_per_day": [
+            {
+                "3": 1500
+            },
+            {
+                "5": 1000
+            }
+        ],
+        "product_name": "A test Laptop",
+        "description": "This is describing a big laptop. Lets check whether this format is working",
+        "title": "This is my Gerat laptop",
+        "lowest_price": 800,
+        "security_deposite":10000
+    }
+
+
+=------
+
+{
+    "status": "Available",
+    "info": {
+        "product_id": "5df4d09607756130d4f72b36",
+        "to_date": 1576607400000,
+        "from_date": 1576261800000,
+        "total_days": 4
+    }
+}

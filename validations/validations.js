@@ -12,7 +12,6 @@ function validateEmail(value) {
 	if (value.includes('@')) {
 		_email = value.split('@');
 		let domainName = _email[1];
-		console.log(domainName);
 		if (!domainName.includes('.')) {
 			return 'Invalid Email ! Please check domain name';
 		}
