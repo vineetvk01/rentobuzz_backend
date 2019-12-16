@@ -17,8 +17,6 @@ const auth_preToken = process.env.PRE_TOKEN || 'basic';
 //const SESS_NAME = process.env.SESS_NAME || 'sid'
 //const SESS_SECRET = process.env.SESS_NAME || 'iamsessionsecret'
 
-const IN_PROD = NODE_ENV === 'production';
-
 mongoose
 	.connect(uri, {
 		useNewUrlParser: true,
@@ -45,28 +43,31 @@ app.use((req, res, next) => {
 		console.log('Login URL access');
 		next();
 		return;
-	}
-	console.log('Not a Login URL');
-	if (authorization) {
-		const session_token = authorization.split(' ');
-		if (session_token[0] == auth_preToken) {
-			userSessionUtil.fetchUserFromSessionToken(session_token[1], req, res, next);
-		}
-	} else if (ticket) {
-		userSessionUtil.fetchUserFromSessionToken(ticket, req, res, next);
 	} else {
-		next();
+		console.log('Not a Login URL');
+		if (authorization) {
+			const session_token = authorization.split(' ');
+			if (session_token[0] == auth_preToken) {
+				userSessionUtil.fetchUserFromSessionToken(session_token[1], req, res, next);
+			}
+		} else if (ticket) {
+			userSessionUtil.fetchUserFromSessionToken(ticket, req, res, next);
+		} else {
+			next();
+		}
 	}
 });
 
 const usersRouter = require('./routes/users');
 const productRouter = require('./routes/products');
 const orderRouter = require('./routes/order');
+const adminRouter = require('./routes/admin');
 
 const api_v1 = '/api/v1';
 app.use(api_v1 + '/users', usersRouter);
 app.use(api_v1 + '/products', productRouter);
 app.use(api_v1 + '/orders', orderRouter);
+app.use(api_v1 + '/admin', adminRouter);
 
 app.use((req, res, next) => {
 	res.status(404).json({

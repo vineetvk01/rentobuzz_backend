@@ -1,5 +1,6 @@
 const router = require('express').Router();
 let Orders = require('../models/orders.model');
+let Product = require('../models/products.model');
 const userSessionUtil = require('../validations/userSessionUtil');
 const productValidationUtil = require('../validations/productValidationUtil');
 
@@ -9,7 +10,7 @@ const failure = 'failure';
 // User
 router.route('/:oid').get((req, res) => {
 	userSessionUtil.allowIfLoggedIn(req, res);
-	Product.find({ _id: req.params.oid })
+	Orders.find({ _id: req.params.oid })
 		.then((order) => res.status(200).json(order))
 		.catch((err) => res.status(500).json(`Error: ${err}`));
 });
@@ -70,9 +71,10 @@ router.route('/new/:pid').post((req, res) => {
 });
 
 //Admin
-router.route('/all').get((req, res) => {
+router.route('/').get((req, res) => {
 	userSessionUtil.allowIfAdmin(req, res);
-	Product.find().then((orders) => res.status(200).json(orders)).catch((err) => res.status(500).json(`Error: ${err}`));
+	console.log('Orders | Requesting all the orders by: ' + res.locals.user.userName);
+	Orders.find().then((orders) => res.status(200).json(orders)).catch((err) => res.status(500).json(`Error: ${err}`));
 });
 
 module.exports = router;

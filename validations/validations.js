@@ -48,4 +48,16 @@ function validatePassword(value) {
 	return '';
 }
 
-module.exports = { validateName, validateEmail, validatePhoneNumber, validateUserName, validatePassword };
+function generateNumericOTP(numberOfDigits) {
+	let random = Math.random() * Math.pow(10, numberOfDigits);
+	return Math.round(random);
+}
+
+module.exports = {
+	validateName,
+	validateEmail,
+	validatePhoneNumber,
+	validateUserName,
+	validatePassword,
+	generateNumericOTP
+};

@@ -4,6 +4,7 @@ let UserSession = require('../models/userSession.model');
 
 const signUpValidations = require('../validations/validations');
 const userSessionUtil = require('../validations/userSessionUtil');
+const mailUtil = require('../validations/mailUtil');
 
 const success = 'success';
 const failure = 'failure';
@@ -28,6 +29,24 @@ function loginUser(users, password, req, res) {
 				userSession
 					.save()
 					.then(function(userSession) {
+						let loginNotificationMail = {
+							to: user.email,
+							subject: 'We Have indentified a login from your credential',
+							text: ' Login Occured',
+							html:
+								'<h1>Welcome ' +
+								user.firstName +
+								' ' +
+								user.lastName +
+								'</h1><p>Welcome back to Rentobuzz. We have identified a login from your account.<br> <b>Using</b> : ' +
+								userSession.userAgent +
+								' <br><b>At Time: </b>' +
+								userSession.updatedAt +
+								' </p>'
+						};
+						mailUtil.sendMailNow(loginNotificationMail).catch((error) => {
+							console.log('Error While Sending mail, Error : ', error);
+						});
 						res.cookie('ticket', userSession._id, { httpOnly: true });
 						res.status(200).json({
 							status: success,
@@ -239,6 +258,7 @@ router.route('/register').post((req, res) => {
 		});
 		return;
 	}
+	console.log('Signup | New Request recieved at ' + new Date());
 	const firstName = req.body.firstname;
 	const lastName = req.body.lastname;
 	const email = req.body.email;
@@ -255,6 +275,7 @@ router.route('/register').post((req, res) => {
 	errors.push(signUpValidations.validatePassword(password));
 	errors = errors.filter((error) => error.length > 1);
 	if (errors.length > 0) {
+		console.log('Signup | Error Occured : ' + errors.toString);
 		res.status(400).json({
 			status: failure,
 			message: errors
@@ -262,7 +283,8 @@ router.route('/register').post((req, res) => {
 		return;
 	}
 
-	const OTPs = { emailOTP: '1234', phoneOTP: '1234' };
+	const OTPs = { emailOTP: signUpValidations.generateNumericOTP(6), phoneOTP: '1234' };
+
 	const newUser = new User({
 		firstName: firstName,
 		lastName: lastName,
@@ -274,19 +296,22 @@ router.route('/register').post((req, res) => {
 	newUser.password = newUser.generateHash(password);
 	newUser
 		.save()
-		.then(() =>
-			res.json({
+		.then((user) => {
+			console.log('Signup | Success | New User Signup : ' + user.username + ' OTP : ' + user.OTPs.emailOTP);
+			mailUtil.sendSignUpMail(user);
+			return res.status(202).json({
 				status: success,
 				message: 'Signup is successfull. Thanks for Registering with us.'
-			})
-		)
-		.catch((err) =>
-			res.status(400).json({
+			});
+		})
+		.catch((err) => {
+			console.log('Signup | Failed | Error Occured : ' + err);
+			return res.status(400).json({
 				status: failure,
 				message: 'Error while saving User !',
 				internalError: err
-			})
-		);
+			});
+		});
 });
 
 module.exports = router;
