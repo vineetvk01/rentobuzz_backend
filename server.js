@@ -2,7 +2,6 @@ const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
-
 const userSessionUtil = require('./validations/userSessionUtil');
 
 require('dotenv').config();
@@ -30,8 +29,8 @@ const connection = mongoose.connection;
 connection.once('open', () => {
 	console.log('Connected !');
 });
-mongoose.set('useFindAndModify', false);
 
+mongoose.set('useFindAndModify', false);
 app.use(cors());
 app.use(cookieParser());
 app.use(express.json());
@@ -58,6 +57,11 @@ app.use((req, res, next) => {
 	}
 });
 
+var timeout = require('connect-timeout'); //express v4
+
+app.use(timeout(120000));
+app.use(haltOnTimedout);
+
 const usersRouter = require('./routes/users');
 const productRouter = require('./routes/products');
 const orderRouter = require('./routes/order');
@@ -75,6 +79,10 @@ app.use((req, res, next) => {
 		message: 'This URI is not configured'
 	});
 });
+
+function haltOnTimedout(req, res, next) {
+	if (!req.timedout) next();
+}
 
 app.listen(port, () => {
 	console.log(`Server is running on port: ${port}`);

@@ -8,17 +8,18 @@ const success = 'success';
 const failure = 'failure';
 
 // User
-router.route('/:oid').get((req, res) => {
+router.route('/details/:oid').get((req, res) => {
 	userSessionUtil.allowIfLoggedIn(req, res);
 	Orders.find({ _id: req.params.oid })
 		.then((order) => res.status(200).json(order))
 		.catch((err) => res.status(500).json(`Error: ${err}`));
 });
 
+//Make a new order
 router.route('/new/:pid').post((req, res) => {
 	userSessionUtil.allowIfLoggedIn(req, res);
-	const { from_date, to_date, city } = req.body;
-	var user = res.locals.user;
+	const { from_date, to_date, city, address_deliver, address_billing } = req.body;
+	const user = res.locals.user;
 	console.log(
 		'Order | order received, user: ' +
 			user.email +
@@ -33,7 +34,7 @@ router.route('/new/:pid').post((req, res) => {
 	);
 	// Check whether the User is eligible for booking
 	let eligibityStatus = productValidationUtil.isUserEligibleForOrdering(user);
-	console.log('Order user Eligibity of ordering : ' + eligibityStatus);
+	console.log('Order user Eligibity of ordering : ' + eligibityStatus.status);
 
 	if (!eligibityStatus.status) {
 		res.status(403).json({
@@ -47,10 +48,33 @@ router.route('/new/:pid').post((req, res) => {
 			Orders.find({ productId: product._id, cityOfBooking: city })
 				.then((orders) => {
 					const totalPrice = productValidationUtil.calculatePrice(product, orders, city, from_date, to_date);
-					if (totalPrice > 0) {
-						res.status(200).json({
-							status: success
+					if (totalPrice.price_to_pay > 0) {
+						const newOrder = new Orders({
+							productId: product._id,
+							userId: user.id,
+							cityOfBooking: city,
+							pickupDate: from_date,
+							dropOffDate: to_date,
+							addressDeliver: address_deliver,
+							billingAddress: address_billing,
+							totalPrice: totalPrice.price_to_pay,
+							billingPrice: totalPrice.price_to_pay
 						});
+						newOrder
+							.save()
+							.then((data) => {
+								console.log('Order placed guys : ' + error);
+								return res.status(202).json({
+									status: success,
+									order: data
+								});
+							})
+							.catch((error) => {
+								console.log('Error while placing order : ' + error);
+								return res.status(500).json({
+									status: failure
+								});
+							});
 					}
 				})
 				.catch((err) => {

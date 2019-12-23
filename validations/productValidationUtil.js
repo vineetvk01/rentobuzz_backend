@@ -9,10 +9,13 @@ function calculatePriceFromDays(product, totalDays) {
 	let priceToBeCharged = product.basePrice;
 	console.log('calculatePriceFromDays : Base Price : ' + priceToBeCharged);
 	console.log(
-		'calculatePriceFromDays : Number of criterias for this product : ' + Object.keys(product.pricePerDay).length
+		'calculatePriceFromDays : Number of Division of price for this product : ' +
+			Object.keys(product.pricePerDay).length
 	);
 	Object.keys(product.pricePerDay).forEach(function(key) {
-		console.log('calculatePriceFromDays : Day : ' + key + ' | Price: ' + product.pricePerDay[key]);
+		console.log(
+			'calculatePriceFromDays : More than Day : ' + key + ' | Price per day: ' + product.pricePerDay[key]
+		);
 		if (parseInt(totalDays) >= parseInt(key)) {
 			console.log(
 				'calculatePriceFromDays : As days are more than ' +
@@ -23,6 +26,8 @@ function calculatePriceFromDays(product, totalDays) {
 			priceToBeCharged = parseInt(product.pricePerDay[key]);
 		}
 	});
+	console.log(' Requested : TOTAL DAYS: ' + totalDays);
+	console.log(' Requested : price To be charged per day ' + priceToBeCharged);
 	return priceToBeCharged * totalDays;
 }
 function calculatePrice(product, orders, city, from_date, to_date) {
@@ -51,6 +56,7 @@ function calculatePrice(product, orders, city, from_date, to_date) {
 	}
 	// After Validations | Calculating Price
 	var priceToPay = calculatePriceFromDays(product, totalDays);
+	console.log('Price to pay calculated : ' + priceToPay);
 	return {
 		total_days: totalDays,
 		price_to_pay: priceToPay,
@@ -63,7 +69,7 @@ function isUserEligibleForOrdering(user) {
 	console.log(
 		'Order Request by : ' +
 			email +
-			' \n --- \n Profile Details : \nEmail Verified : ' +
+			' \n --- \nProfile Details : \nEmail Verified : ' +
 			isVerifiedEmail +
 			' \nPhone Number Verified: ' +
 			isVerifiedPhone +

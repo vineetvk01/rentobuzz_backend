@@ -90,6 +90,95 @@ router.route('/').get((req, res) => {
 
 // For LoggedIn Users
 
+router.route('/user/verifyemail/:eid/:otp').get((req, res) => {
+	console.log('Veryfying email for the users');
+	userSessionUtil.allowIfLoggedIn(req, res);
+	const user = res.locals.user;
+	if (user !== undefined) {
+		console.log('User Logged In and Current emai staus : ' + user.isVerifiedEmail);
+		let email = user.email;
+		console.log('EMAIL request Logged In :' + email);
+		if (email === req.params.eid) {
+			const oTP = req.params.otp;
+			console.log('OTP request Logged In :' + email);
+			if (!Number.isInteger(parseInt(oTP))) {
+				return res.status(403).json({
+					status: failure,
+					message: 'Invalid OTP. Please check the OTP.'
+				});
+			} else {
+				const oTPForUser = user.OTPs.emailOTP;
+				if (oTP == oTPForUser) {
+					let updateVerification = { isVerifiedEmail: true };
+					console.log('User.ID going to update -> ' + user._id);
+					User.findByIdAndUpdate(user._id, { $set: updateVerification })
+						.then((data) => {
+							console.log(data);
+							return res.status(200).json({
+								status: success,
+								message: 'Email is verified successfully'
+							});
+						})
+						.catch((data) => {
+							res.status(500).json({
+								status: failure,
+								message: 'Try again later'
+							});
+						});
+				}
+			}
+		}
+	}
+});
+
+router.route('/user/verifyphone/:pno/:otp').get((req, res) => {
+	console.log('Veryfying Phone Number for the users');
+	userSessionUtil.allowIfLoggedIn(req, res);
+	const user = res.locals.user;
+	if (user !== undefined) {
+		console.log('User Logged In and Current PhoneNumber staus : ' + user.isVerifiedPhone);
+		let phoneNumber = user.phoneNumber;
+		console.log('EMAIL request Logged In :' + phoneNumber);
+		if (phoneNumber === req.params.pno) {
+			const oTP = req.params.otp;
+			console.log('Logged In User :' + user.email);
+			if (!Number.isInteger(parseInt(oTP))) {
+				return res.status(403).json({
+					status: failure,
+					message: 'Invalid OTP. Please check the OTP.'
+				});
+			} else {
+				const oTPForUser = user.OTPs.phoneOTP;
+				console.log('OTP for the user in DB :' + oTPForUser);
+				if (oTPForUser == undefined) {
+					return res.status(404).json({
+						status: failure,
+						message: 'OTP not setup for your account. Please contact support'
+					});
+				}
+				if (oTP == oTPForUser) {
+					let updateVerification = { isVerifiedPhone: true };
+					console.log('User.ID going to update -> ' + user._id);
+					User.findByIdAndUpdate(user._id, { $set: updateVerification }, { new: true })
+						.then((data) => {
+							console.log(data);
+							return res.status(200).json({
+								status: success,
+								message: 'Phone Number is verified successfully'
+							});
+						})
+						.catch((data) => {
+							res.status(500).json({
+								status: failure,
+								message: 'Try again later'
+							});
+						});
+				}
+			}
+		}
+	}
+});
+
 router.route('/logout').get((req, res) => {
 	console.log('Logout | Logout Request ');
 	userSessionUtil.allowIfLoggedIn(req, res);
@@ -115,7 +204,7 @@ router.route('/logout').get((req, res) => {
 		});
 });
 
-router.route('/:uid').get((req, res) => {
+router.route('/user/:uid').get((req, res) => {
 	userSessionUtil.allowIfLoggedIn(req, res);
 	const userInSession = res.locals.user;
 	if (userInSession._id === req.params.uid) {
@@ -132,7 +221,7 @@ router.route('/:uid').get((req, res) => {
 	);
 });
 
-router.route('/:uid').put((req, res) => {
+router.route('/user/:uid').put((req, res) => {
 	userSessionUtil.allowIfLoggedIn(req, res);
 	const firstName = req.body.firstname;
 	const lastName = req.body.lastname;
